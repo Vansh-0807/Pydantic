@@ -1,0 +1,29 @@
+from pydantic import BaseModel, EmailStr, Field
+from typing import List, Dict, Optional, Annotated
+
+class Patient(BaseModel):
+    name: Annotated[str, Field(max_length = 20, title = "Name of the Patient", description = "Enter the name of the Patient")]    
+    email: Annotated[Optional[EmailStr], Field(default = None, title = "Patient Mail ID", description = "Enter the email id of the Patient")]
+    age: Annotated[int, Field(gt=0, lt = 100, title = "Age of the Patient", description = "Enter the age of the patient")]
+    married : Annotated[Optional[bool], Field(default = False, title = "Married", description = "Tell us whether you are married or not")]
+    weight: Annotated[int, Field(title = "Weight of the Patient", description = "Enter the weight of the patient")]
+    contact_details: Annotated[Dict[str, str], Field(default = "No Contact details", title = "Patient Contact Number", description = "Enter the contact details")]
+
+def update_details(patient:Patient):
+    print(patient.name)
+    print(patient.email)
+    print(patient.age)
+    print(patient.weight)
+    print(patient.contact_details)
+
+patient_info_01 = {
+    'name' : "Vansh Rateria",
+    'email' : "vansh.rateria15@gmail.com",
+    'age' : 20,
+    'weight' : 51,
+    'contact_details' : {'phone_number' : '+919900321994'} 
+
+}
+
+patient_01 = Patient(**patient_info_01)
+update_details(patient_01)
