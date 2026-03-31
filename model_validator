@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, model_validator
 from typing import List, Dict, Optional, Annotated
 
 class Patient(BaseModel):
@@ -9,6 +9,12 @@ class Patient(BaseModel):
     weight: Annotated[int, Field(title = "Weight of the Patient", description = "Enter the weight of the patient")]
     contact_details: Annotated[Dict[str, str], Field(default = "No Contact details", title = "Patient Contact Number", description = "Enter the contact details")]
 
+    @model_validator(mode = 'after')
+    def validate_emergency_contact(cls, model):
+        if model.age > 60 and 'emergency' not in model.contact_details:
+            raise ValueError("patients older then 60 must have an emergency number") 
+        return model
+    
 def update_details(patient:Patient):
     print(patient.name)
     print(patient.email)
@@ -25,5 +31,16 @@ patient_info_01 = {
 
 }
 
+patient_info_02 = {
+    'name' : "Riya",
+    'email' : "riya@outlook.com",
+    'age' : 64,
+    'weight' : 55,
+    'contact_details' : {'phone_number' : '+919806473379', 'emergency' : '202'} 
+}
+
 patient_01 = Patient(**patient_info_01)
+patient_02 = Patient(**patient_info_02)
+
 update_details(patient_01)
+update_details(patient_02)
