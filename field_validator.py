@@ -31,32 +31,17 @@ class Patient(BaseModel):
     
     @field_validator('age', mode = 'before')
     @classmethod
-    def age(cls, value):
+    def validate_age(cls, value):
         if (0 < value < 100):
             return value
         else:
-            return ValueError('age cannot be greater then 100 or less then 0')
+            raise ValueError('age cannot be greater then 100 or less then 0')
 
     @field_validator('name')
     @classmethod
     def translate(cls, value):
         return value.upper()
     
-    # @field_validator('weight')
-    # @classmethod
-    # def weight_validator(cls, value):
-    #     if(0<value<=18.5):
-    #         print("Status:Underweight")
-    #     elif(18.5<value<=24.9):
-    #         print("Status:Unhealthy")
-    #     elif(25.0<=value<=29.9):
-    #         print("Status:Overweight")
-    #     elif(value >= 30.0):
-    #         print("Status: Obese")
-    #     else:
-    #         raise ValueError("weight cannot be greater then 30")
-    #     return value
-
     @field_validator('weight')
     @classmethod
     def weight_validator(cls, value):  
