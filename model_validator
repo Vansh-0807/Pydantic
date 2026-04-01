@@ -1,10 +1,11 @@
 from pydantic import BaseModel, EmailStr, Field, model_validator
-from typing import List, Dict, Optional, Annotated
+from typing import Dict, Optional, Annotated
 
 class Patient(BaseModel):
     name: Annotated[str, Field(max_length = 20, title = "Name of the Patient", description = "Enter the name of the Patient")]    
     email: Annotated[Optional[EmailStr], Field(default = None, title = "Patient Mail ID", description = "Enter the email id of the Patient")]
     age: Annotated[int, Field(gt=0, lt = 100, title = "Age of the Patient", description = "Enter the age of the patient")]
+    gender: Annotated[str, Field(title = "Gender", description = "Enter the gender of the patient")]
     married : Annotated[Optional[bool], Field(default = False, title = "Married", description = "Tell us whether you are married or not")]
     weight: Annotated[int, Field(title = "Weight of the Patient", description = "Enter the weight of the patient")]
     contact_details: Annotated[Dict[str, str], Field(default = "No Contact details", title = "Patient Contact Number", description = "Enter the contact details")]
@@ -15,10 +16,26 @@ class Patient(BaseModel):
             raise ValueError("patients older then 60 must have an emergency number") 
         return model
     
+    @model_validator(mode = 'after')
+    def validate_name(self) -> 'Patient':
+        if self.gender == 'Male' and not self.name.startswith('Mr.'):
+            self.name = f"Mr. {self.name}"
+        elif self.gender == 'Female' and not self.name.startswith('Ms.'):
+            self.name = f"Mrs. {self.name}"
+        else:
+            return self 
+            
+    @model_validator(mode = 'after')
+    def validate_name(self) -> 'Patient':
+        if self.gender == 'Female' and self.married == True and not self.name.startswith('Mrs'):
+            self.name = f"Mrs. {self.name}"
+            return self
+        
 def update_details(patient:Patient):
     print(patient.name)
     print(patient.email)
     print(patient.age)
+    print(patient.gender)
     print(patient.weight)
     print(patient.contact_details)
 
@@ -26,6 +43,7 @@ patient_info_01 = {
     'name' : "Vansh Rateria",
     'email' : "vansh.rateria15@gmail.com",
     'age' : 20,
+    'gender' : 'Male',
     'weight' : 51,
     'contact_details' : {'phone_number' : '+919900321994'} 
 
@@ -35,12 +53,27 @@ patient_info_02 = {
     'name' : "Riya",
     'email' : "riya@outlook.com",
     'age' : 64,
+    'gender' : 'Female',
     'weight' : 55,
     'contact_details' : {'phone_number' : '+919806473379', 'emergency' : '202'} 
 }
 
+patient_info_03 = {
+    'name' : "Ananya",
+    'email' : "ananya@gmail.com",
+    'age' : 34,
+    'gender' : 'Female',
+    'married' : True,
+    'weight' : 43,
+    'contact_details' : {'phone_number' : '+919876543210'}
+}
+
+
+
 patient_01 = Patient(**patient_info_01)
 patient_02 = Patient(**patient_info_02)
+patient_03 = Patient(**patient_info_03)
 
 update_details(patient_01)
 update_details(patient_02)
+update_details(patient_03)
