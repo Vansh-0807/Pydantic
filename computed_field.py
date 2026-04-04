@@ -13,7 +13,7 @@ class Patient(BaseModel):
     #computed+_field is used for calculation and it is dynamic in nature
     @computed_field
     @property
-    def calculate_bmi(self) -> float:
+    def calculate_bmi(self) -> 'Patient':
         bmi = round(self.weight/(self.height ** 2),2) #round keyword is used to roundoff the number
         return bmi
     
