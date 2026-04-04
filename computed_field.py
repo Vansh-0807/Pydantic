@@ -10,10 +10,11 @@ class Patient(BaseModel):
     allergies: Annotated[Optional[List[str]], Field(default = None, title = "Patient Medical Record", description = "Enter the Patient allergies")]
     contact_details: Annotated[Dict[str,str], Field(title = "Patient Contact Details", description = "Enter the patient contact details")]
 
+    #computed+_field is used for calculation and it is dynamic in nature
     @computed_field
     @property
     def calculate_bmi(self) -> float:
-        bmi = round(self.weight/(self.height ** 2),2)
+        bmi = round(self.weight/(self.height ** 2),2) #round keyword is used to roundoff the number
         return bmi
     
 def updated_patient_details(patient:Patient):
