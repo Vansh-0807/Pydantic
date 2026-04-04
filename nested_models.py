@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import Dict, Annotated, Optional
 
 class Address(BaseModel):
@@ -10,20 +10,33 @@ class Address(BaseModel):
 
 class Patient(BaseModel):
     name: str
-    email: EmailStr
+    email: Annotated[Optional[EmailStr], Field(default = None, title = "EmailID of the Patient", description = "Enter the MailID od the patient")]
     age: Annotated[int, Field(gt=0, lt=100, title = "Patient Age", description = "Enter the age of the patient")]
     gender: Annotated[str, Field(default = "Not prefer to say", title = "Gender", description = "Enter the gender")]
     address: Address
-    contact_details: Annotated[Dict[str, int], Field(default = "None", title = "Contact Details of Patient", description = "Enter the contact details of patient")]
+    contact_details: Annotated[Dict[str, str], Field(default = "None", title = "Contact Details of Patient", description = "Enter the contact details of patient")]
 
-# def update_details(patient:Patient):
-#     print(patient.name)
-#     print(patient.email)
-#     print(patient.age)
-#     print(patient.gender)
-#     print(patient.address)
-#     print(patient.contact_details)
+    @field_validator('email')
+    @classmethod
+    def validate_email(cls,value):
+        valid_domains = ['gmail.com', 'outlook.com']
+        domain_name = value.split('@')[-1]
+        if domain_name not in valid_domains:
+            raise ValueError("Not a valid email")
 
+    @field_validator('contact_details')
+    def validate_contact_details(cls, value=Dict[str, str]):
+        for label, number in value.items():
+            if not number.startswith('+91'):
+                raise ValueError(f"The {label} number {number} is Not an Indian Number")
+        return value
+    
+    @field_validator('age')
+    def validate_age(cls, value):
+        if not 0<value<100:
+            raise ValueError("Not a valid age")
+        return value
+    
 address_dict = {
     'plot_number' : 221,
     'city' : 'Raipur',
@@ -49,7 +62,7 @@ patient_dict = {
     'age' : 21,
     'gender' : 'male',
     'address' : address_01,
-    'contact_details' : {'phone_number' : +914532105634}
+    'contact_details' : {'phone_number' : '+914532105634'}
 }
 
 patient_01 = Patient(**patient_dict)
@@ -60,7 +73,7 @@ patient_dict_02 = {
     'age' : 22,
     'gender' : 'male',
     'address' : address_02,
-    'contact_details' : {'phone_number' : +919857439210}
+    'contact_details' : {'phone_number' : '+919857439210'}
 }
 
 patient_02 = Patient(**patient_dict_02)
